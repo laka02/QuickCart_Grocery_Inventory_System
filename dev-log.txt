@@ -1,0 +1,12 @@
+﻿node.exe : npm error Missing script: "dev"
+At C:\Program Files (x86)\npm.ps1:29 char:3
++   & $NODE_EXE $NPM_CLI_JS $args
++   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (npm error Missing script: "dev":String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+npm error
+npm error To see a list of scripts, run:
+npm error   npm run
+npm error A complete log of this run can be found in: C:\Users\Lakshika 
+Viduranga\AppData\Local\npm-cache\_logs\2025-12-06T15_53_07_920Z-debug-0.log
