@@ -14,6 +14,17 @@ const SupplierTable = () => {
   const [products, setProducts] = useState([]);
   const [searchTerm, setSearchTerm] = useState('');
 
+  // New supplier UI state
+  const [showAdd, setShowAdd] = useState(false);
+  const [newSupplier, setNewSupplier] = useState({
+    name: '',
+    email: '',
+    phone: '',
+    productsSupplied: [],
+    isActive: true
+  });
+  const [adding, setAdding] = useState(false);
+
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -102,23 +113,14 @@ const SupplierTable = () => {
         responseType: 'blob'
       });
       
-      // Create a blob from the PDF data
       const blob = new Blob([response.data], { type: 'application/pdf' });
-      
-      // Create a URL for the blob
       const url = window.URL.createObjectURL(blob);
-      
-      // Create a temporary link element
       const link = document.createElement('a');
       link.href = url;
       link.download = 'suppliers.pdf';
-      
-      // Append link to body, click it, and remove it
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
-      
-      // Clean up the URL
       window.URL.revokeObjectURL(url);
     } catch (err) {
       setError(err.response?.data?.message || err.message);
@@ -127,7 +129,7 @@ const SupplierTable = () => {
 
   const handleStatusToggle = async (supplierId, currentStatus) => {
     try {
-      const response = await axios.put(
+      await axios.put(
         `http://localhost:3000/api/suppliers/${supplierId}`,
         { isActive: !currentStatus }
       );
@@ -144,6 +146,49 @@ const SupplierTable = () => {
     }
   };
 
+  // Add supplier handlers
+  const toggleProductInNewSupplier = (productId) => {
+    setNewSupplier(prev => {
+      const set = new Set(prev.productsSupplied || []);
+      if (set.has(productId)) {
+        set.delete(productId);
+      } else {
+        set.add(productId);
+      }
+      return { ...prev, productsSupplied: Array.from(set) };
+    });
+  };
+
+  const handleAddSupplier = async (e) => {
+    e.preventDefault();
+    setAdding(true);
+    setError(null);
+    try {
+      const payload = {
+        name: newSupplier.name,
+        email: newSupplier.email,
+        phone: newSupplier.phone,
+        productsSupplied: newSupplier.productsSupplied,
+        isActive: newSupplier.isActive
+      };
+      const res = await axios.post('http://localhost:3000/api/suppliers', payload);
+      setSuppliers(prev => [res.data, ...prev]);
+      setNewSupplier({
+        name: '',
+        email: '',
+        phone: '',
+        productsSupplied: [],
+        isActive: true
+      });
+      setShowAdd(false);
+    } catch (err) {
+      console.error('Add supplier error:', err);
+      setError(err.response?.data?.message || err.message || 'Failed to add supplier');
+    } finally {
+      setAdding(false);
+    }
+  };
+
   if (loading) return <div className="text-center py-8">Loading suppliers...</div>;
   if (error) return <div className="text-red-500 text-center py-8">Error: {error}</div>;
 
@@ -151,7 +196,7 @@ const SupplierTable = () => {
     <div className="w-full px-2 py-4">
       <div className="flex flex-col md:flex-row md:justify-between md:items-center mb-6 gap-4">
         <h1 className="text-2xl font-bold">Supplier Management</h1>
-        <div className="flex gap-4">
+        <div className="flex gap-4 items-center">
           <input
             type="text"
             placeholder="Search by name, email, or phone..."
@@ -160,6 +205,12 @@ const SupplierTable = () => {
             className="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
           />
           <button
+            onClick={() => setShowAdd(v => !v)}
+            className="px-4 py-2 bg-green-700 text-white rounded-md hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-green-500"
+          >
+            {showAdd ? 'Close' : 'Add Supplier'}
+          </button>
+          <button
             onClick={handleGeneratePDF}
             className="px-4 py-2 bg-blue-900 text-white rounded-md hover:bg-blue-800 focus:outline-none focus:ring-2 focus:ring-blue-500"
           >
@@ -167,6 +218,101 @@ const SupplierTable = () => {
           </button>
         </div>
       </div>
+
+      {/* Add Supplier Form */}
+      {showAdd && (
+        <div className="mb-6 bg-white p-4 rounded shadow">
+          <form onSubmit={handleAddSupplier}>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700">Name</label>
+                <input
+                  type="text"
+                  value={newSupplier.name}
+                  onChange={(e) => setNewSupplier({...newSupplier, name: e.target.value})}
+                  required
+                  className="mt-1 w-full px-3 py-2 border rounded"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700">Email</label>
+                <input
+                  type="email"
+                  value={newSupplier.email}
+                  onChange={(e) => setNewSupplier({...newSupplier, email: e.target.value})}
+                  required
+                  className="mt-1 w-full px-3 py-2 border rounded"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700">Phone</label>
+                <input
+                  type="tel"
+                  value={newSupplier.phone}
+                  onChange={(e) => setNewSupplier({...newSupplier, phone: e.target.value})}
+                  className="mt-1 w-full px-3 py-2 border rounded"
+                />
+              </div>
+            </div>
+
+            <div className="mt-4">
+              <label className="block text-sm font-medium text-gray-700 mb-2">Products Supplied (optional)</label>
+              <div className="flex flex-wrap gap-2">
+                {products.length === 0 && <div className="text-sm text-gray-500">No products available</div>}
+                {products.map(p => {
+                  const checked = newSupplier.productsSupplied.includes(p._id);
+                  return (
+                    <label key={p._id} className="inline-flex items-center gap-2 bg-gray-50 px-2 py-1 rounded">
+                      <input
+                        type="checkbox"
+                        checked={checked}
+                        onChange={() => toggleProductInNewSupplier(p._id)}
+                        className="form-checkbox"
+                      />
+                      <span className="text-sm">{p.name}</span>
+                    </label>
+                  );
+                })}
+              </div>
+            </div>
+
+            <div className="mt-4 flex items-center gap-4">
+              <label className="inline-flex items-center gap-2">
+                <input
+                  type="checkbox"
+                  checked={newSupplier.isActive}
+                  onChange={(e) => setNewSupplier({...newSupplier, isActive: e.target.checked})}
+                  className="form-checkbox"
+                />
+                <span className="text-sm">Active</span>
+              </label>
+
+              <div className="ml-auto flex gap-2">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setShowAdd(false);
+                    setNewSupplier({ name: '', email: '', phone: '', productsSupplied: [], isActive: true });
+                    setError(null);
+                  }}
+                  className="px-4 py-2 border rounded"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  disabled={adding}
+                  className="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700"
+                >
+                  {adding ? 'Adding...' : 'Add Supplier'}
+                </button>
+              </div>
+            </div>
+
+            {error && <div className="text-red-500 mt-3">{error}</div>}
+          </form>
+        </div>
+      )}
 
       <div className="bg-white shadow-md rounded-lg overflow-hidden">
         <table className="min-w-full divide-y divide-gray-200">

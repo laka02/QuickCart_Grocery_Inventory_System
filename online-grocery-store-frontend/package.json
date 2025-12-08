@@ -7,7 +7,8 @@
     "dev": "vite --open",
     "build": "vite build",
     "lint": "eslint .",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "update-browserslist-db": "npx update-browserslist-db@latest --update-db"
   },
   "dependencies": {
     "autoprefixer": "^10.4.21",

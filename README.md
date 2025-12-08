@@ -17,8 +17,7 @@ online-grocery-store-inventory/
 - Public Quickhome storefront with searching, filtering, pagination, and a persistent cart powered by React Context + localStorage.
 - Supplier management including PDF exports, purchase order helper, and deletion flows.
 - Product CRUD with image uploads to Cloudinary and printable inventory reports.
-- Fully typed REST API with MongoDB Atlas connection and Vercel-ready `vercel.json`.
-- Ready for deployment: both frontend and backend can be shipped to **Vercel** with zero additional config.
+- Ready for deployment: backend and frontend can be deployed to **Vercel** with minimal configuration.
 
 ## Local Development
 
@@ -30,7 +29,7 @@ online-grocery-store-inventory/
 
 ### Backend (`online-grocery-store-system-backend/backend/server`)
 
-1. Install deps:
+1. Install dependencies:
    ```bash
    cd online-grocery-store-system-backend/backend/server
    npm install
@@ -51,7 +50,7 @@ online-grocery-store-inventory/
 
 ### Frontend (`online-grocery-store-frontend`)
 
-1. Install deps:
+1. Install dependencies:
    ```bash
    cd online-grocery-store-frontend
    npm install
