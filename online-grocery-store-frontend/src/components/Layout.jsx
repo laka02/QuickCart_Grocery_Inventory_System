@@ -1,8 +1,9 @@
 import { Outlet, Link, useNavigate } from 'react-router-dom';
 import { useRef, useState } from 'react';
 import { useReactToPrint } from 'react-to-print';
-import axios from 'axios';
+import api from '../utils/api';
 import { useCart } from '../context/CartContext';
+import { logout } from '../services/authService';
 import { FiShoppingCart } from 'react-icons/fi';
 
 function Layout() {
@@ -15,9 +16,8 @@ function Layout() {
   const { getCartItemCount } = useCart();
 
   const handleLogout = () => {
-    // Clear the email from localStorage
-    localStorage.removeItem('userEmail');
-    navigate('/');
+    logout();
+    navigate('/login');
   };
 
   const handlePrint = useReactToPrint({
@@ -90,7 +90,7 @@ function Layout() {
               <button
                 onClick={async () => {
                   try {
-                    await axios.delete(`http://localhost:3000/api/products/${productToDelete}`);
+                    await api.delete(`/products/${productToDelete}`);
                     fetchProducts();
                     fetchInventoryStats();
                     setDeleteMessage('Product deleted successfully!');

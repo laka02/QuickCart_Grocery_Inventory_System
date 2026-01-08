@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import axios from 'axios';
+import api from '../utils/api';
 import { Link } from 'react-router-dom';
 
 const SupplierTable = () => {
@@ -29,8 +29,8 @@ const SupplierTable = () => {
     const fetchData = async () => {
       try {
         const [suppliersRes, productsRes] = await Promise.all([
-          axios.get('http://localhost:3000/api/suppliers'),
-          axios.get('http://localhost:3000/api/products')
+          api.get('/suppliers'),
+          api.get('/products')
         ]);
         setSuppliers(suppliersRes.data);
         setProducts(productsRes.data);
@@ -57,8 +57,8 @@ const SupplierTable = () => {
   const handleDelete = async (id) => {
     if (window.confirm('Are you sure you want to delete this supplier?')) {
       try {
-        const response = await axios.delete(
-          `http://localhost:3000/api/suppliers/${id}`,
+        const response = await api.delete(
+          `/suppliers/${id}`,
           {
             headers: {
               'Content-Type': 'application/json'
@@ -96,8 +96,8 @@ const SupplierTable = () => {
   const handlePoSubmit = async (e) => {
     e.preventDefault();
     try {
-      const response = await axios.post(
-        `http://localhost:3000/api/suppliers/${selectedSupplier._id}/purchase-order`,
+      const response = await api.post(
+        `/suppliers/${selectedSupplier._id}/purchase-order`,
         poDetails
       );
       alert(`Purchase Order Created!\n${JSON.stringify(response.data, null, 2)}`);
@@ -109,7 +109,7 @@ const SupplierTable = () => {
 
   const handleGeneratePDF = async () => {
     try {
-      const response = await axios.get('http://localhost:3000/api/suppliers/pdf/generate', {
+      const response = await api.get('/suppliers/pdf/generate', {
         responseType: 'blob'
       });
       
@@ -129,8 +129,8 @@ const SupplierTable = () => {
 
   const handleStatusToggle = async (supplierId, currentStatus) => {
     try {
-      await axios.put(
-        `http://localhost:3000/api/suppliers/${supplierId}`,
+      await api.put(
+        `/suppliers/${supplierId}`,
         { isActive: !currentStatus }
       );
       
@@ -171,7 +171,7 @@ const SupplierTable = () => {
         productsSupplied: newSupplier.productsSupplied,
         isActive: newSupplier.isActive
       };
-      const res = await axios.post('http://localhost:3000/api/suppliers', payload);
+      const res = await api.post('/suppliers', payload);
       setSuppliers(prev => [res.data, ...prev]);
       setNewSupplier({
         name: '',

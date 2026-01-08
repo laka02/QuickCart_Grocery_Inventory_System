@@ -1,6 +1,6 @@
 import { Link } from 'react-router-dom';
 import { useState, useEffect } from 'react';
-import axios from 'axios';
+import api from '../utils/api';
 import {
   ResponsiveContainer,
   BarChart,
@@ -37,7 +37,7 @@ function Home() {
   useEffect(() => {
     const fetchInventoryStats = async () => {
       try {
-        const response = await axios.get('http://localhost:3000/api/products/stats/inventory');
+        const response = await api.get('/products/stats/inventory');
         setStats(response.data);
       } catch (err) {
         setError(err.message);

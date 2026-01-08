@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import axios from 'axios';
+import api from '../utils/api';
 import { useReactToPrint } from 'react-to-print';
 import logo from '../images/logo.png';
 
@@ -43,7 +43,7 @@ const ProductTable = () => {
 
     const fetchProducts = async () => {
         try {
-            const response = await axios.get('http://localhost:3000/api/products');
+            const response = await api.get('/products');
             setProducts(response.data);
             setLoading(false);
             const categories = Array.from(new Set(response.data.map(p => p.category)));
@@ -56,7 +56,7 @@ const ProductTable = () => {
 
     const fetchInventoryStats = async () => {
         try {
-            const response = await axios.get('http://localhost:3000/api/products/stats/inventory');
+            const response = await api.get('/products/stats/inventory');
             setStats(response.data);
         } catch (err) {
             console.error('Error fetching stats:', err);
@@ -85,7 +85,7 @@ const ProductTable = () => {
 
     const removeExistingImage = (productId, publicId) => {
         if (window.confirm('Are you sure you want to delete this image?')) {
-            axios.delete(`http://localhost:3000/api/products/${productId}/images`, { 
+            api.delete(`/products/${productId}/images`, { 
                 data: { public_id: publicId } 
             })
             .then(() => {
@@ -211,7 +211,7 @@ const ProductTable = () => {
     const handleDelete = async (id) => {
         if (window.confirm('Are you sure you want to delete this product?')) {
             try {
-                const response = await axios.delete(`http://localhost:3000/api/products/${id}`);
+                const response = await api.delete(`/products/${id}`);
                 if (response.status === 200) {
                     alert('Product deleted successfully!');
                     fetchProducts();
@@ -268,7 +268,7 @@ const ProductTable = () => {
                 formData.append('images', image.file);
             });
             
-            const response = await axios.put(`http://localhost:3000/api/products/${id}`, formData, {
+            const response = await api.put(`/products/${id}`, formData, {
                 headers: {
                     'Content-Type': 'multipart/form-data'
                 }
@@ -324,7 +324,7 @@ const ProductTable = () => {
 
     const handleGeneratePDF = async () => {
         try {
-            const response = await axios.get('http://localhost:3000/api/products/pdf/generate', {
+            const response = await api.get('/products/pdf/generate', {
                 responseType: 'blob'
             });
             

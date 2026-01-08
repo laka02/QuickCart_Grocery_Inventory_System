@@ -1,8 +1,4 @@
-import axios from 'axios';
-
-const api = axios.create({
-  baseURL: import.meta.env.VITE_API_BASE_URL || '/api'
-});
+import api from '../utils/api';
 
 export const getProducts = async () => {
   return await api.get('/products');

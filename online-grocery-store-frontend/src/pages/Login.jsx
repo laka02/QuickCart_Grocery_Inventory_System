@@ -2,21 +2,32 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { FiSearch, FiDollarSign, FiPackage, FiFilter, FiX, FiMenu, FiGrid } from 'react-icons/fi';
 import ProfessionalFooter from '../components/ProfessionalFooter';
+import { login } from '../services/authService';
 
 const Login = () => {
   const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
   const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const navigate = useNavigate();
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    if (email.endsWith('inv@gmail.com')) {
-      localStorage.setItem('userEmail', email);
-      console.log('Stored email in localStorage:', email);
-      navigate('/home');
-    } else {
-      setError('Invalid email address. Please enter a valid email address.');
+    setError('');
+    setLoading(true);
+
+    try {
+      const response = await login(email, password);
+      if (response.success) {
+        navigate('/home');
+      } else {
+        setError(response.message || 'Login failed. Please try again.');
+      }
+    } catch (err) {
+      setError(err.message || 'Invalid email or password. Please try again.');
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -64,7 +75,7 @@ const Login = () => {
               Welcome back
             </h2>
             <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
-              <div className="rounded-md shadow-sm -space-y-px">
+              <div className="rounded-md shadow-sm space-y-4">
                 <div>
                   <label htmlFor="email" className="sr-only">
                     Email address
@@ -78,20 +89,50 @@ const Login = () => {
                     placeholder="Enter your email address"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
+                    disabled={loading}
+                  />
+                </div>
+                <div>
+                  <label htmlFor="password" className="sr-only">
+                    Password
+                  </label>
+                  <input
+                    id="password"
+                    name="password"
+                    type="password"
+                    required
+                    className="appearance-none rounded-md relative block w-full px-3 py-3 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
+                    placeholder="Enter your password"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    disabled={loading}
                   />
                 </div>
               </div>
 
               {error && (
-                <div className="text-red-500 text-sm text-center animate-pulse">{error}</div>
+                <div className="text-red-500 text-sm text-center animate-pulse bg-red-50 p-3 rounded-md border border-red-200">
+                  {error}
+                </div>
               )}
+
+              <div className="flex items-center justify-end">
+                <button
+                  type="button"
+                  onClick={() => navigate('/forgot-password')}
+                  className="text-sm text-indigo-600 hover:text-indigo-500 font-medium"
+                >
+                  Forgot password?
+                </button>
+              </div>
 
               <div>
                 <button
                   type="submit"
-                  className="group relative w-full flex justify-center py-3 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-blue-900 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition duration-150 ease-in-out transform hover:scale-105"
+                  disabled={loading}
+                  className="group relative w-full flex justify-center py-3 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-blue-900 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition duration-150 ease-in-out transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
                 >
-                  Sign in
+                  {loading ? 'Signing in...' : 'Sign in'}
                 </button>
               </div>
             </form>

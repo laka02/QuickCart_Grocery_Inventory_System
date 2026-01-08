@@ -3,6 +3,7 @@ import cors from 'cors';
 import connectDB from './utils/util.js';
 import productRouter from './route/product.route.js';
 import supplierRouter from './route/supplier.route.js';
+import authRouter from './route/auth.route.js';
 
 const app = express();
 
@@ -22,6 +23,7 @@ app.use(express.json());
 
 connectDB();
 
+app.use('/api/auth', authRouter);
 app.use('/api/products', productRouter);
 app.use('/api/suppliers', supplierRouter);
 

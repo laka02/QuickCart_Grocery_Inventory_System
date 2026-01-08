@@ -7,19 +7,20 @@ import {
     generatePurchaseOrder,
     generateSuppliersPDF
 } from '../controllers/supplier.controller.js';
+import { authenticate } from '../middleware/auth.middleware.js';
 
 const router = express.Router();
 
-// Supplier CRUD routes
-router.post('/', createSupplier);
-router.get('/', getAllSuppliers);
-router.get('/:id', getSupplierById);
-router.put('/:id', updateSupplier);
+// Protected supplier routes (require authentication for inventory management)
+router.post('/', authenticate, createSupplier);
+router.get('/', authenticate, getAllSuppliers);
+router.get('/:id', authenticate, getSupplierById);
+router.put('/:id', authenticate, updateSupplier);
 
 // Purchase order route
-router.post('/:id/purchase-order', generatePurchaseOrder);
+router.post('/:id/purchase-order', authenticate, generatePurchaseOrder);
 
 // PDF generation route
-router.get('/pdf/generate', generateSuppliersPDF);
+router.get('/pdf/generate', authenticate, generateSuppliersPDF);
 
 export default router;

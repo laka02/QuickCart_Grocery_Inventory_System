@@ -1,10 +1,12 @@
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import Layout from './components/Layout';
+import ProtectedRoute from './components/ProtectedRoute';
 import Home from './pages/Home';
 import Product from './pages/product';
 import NewProduct from './pages/newProduct';
 import Suppliers from './pages/suppliers';
 import Login from './pages/Login';
+import ForgotPassword from './pages/ForgotPassword';
 import Profile from './pages/profile';
 import Quickhome from './pages/Quickhome';
 import Cart from './pages/Cart';
@@ -16,8 +18,13 @@ function App() {
       <Routes>
         <Route path="/" element={<Quickhome />} />
         <Route path="/login" element={<Login />} />
+        <Route path="/forgot-password" element={<ForgotPassword />} />
         <Route path="/cart" element={<Cart />} />
-        <Route path="/home" element={<Layout />}>
+        <Route path="/home" element={
+          <ProtectedRoute>
+            <Layout />
+          </ProtectedRoute>
+        }>
           <Route index element={<Home />} />
           <Route path="products" element={<Product />} />
           <Route path="newProduct" element={<NewProduct/>}/>
