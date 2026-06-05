@@ -53,6 +53,14 @@ function Layout() {
             <i className="icon-suppliers"></i>
             <span>Supplier Details</span>
           </Link>
+          <Link to="/home/stock/adjust" className="nav-link">
+            <i className="icon-dashboard"></i>
+            <span>Adjust Stock</span>
+          </Link>
+          <Link to="/home/stock/history" className="nav-link">
+            <i className="icon-dashboard"></i>
+            <span>Stock History</span>
+          </Link>
           <Link to="/home/profile" className="nav-link">
             <i className="icon-profile"></i>
             <span>User Profile</span>

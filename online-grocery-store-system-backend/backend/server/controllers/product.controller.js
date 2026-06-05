@@ -1,6 +1,7 @@
 import Product from '../models/product.model.js';
 import { upload, imageUploadUtil, cloudinary } from '../utils/cloudinary.util.js';
 import PDFDocument from 'pdfkit';
+import { logStockChange } from './stock.controller.js';
 
 // Create a new product with image upload
 export const createProduct = async (req, res) => {
@@ -40,6 +41,19 @@ export const createProduct = async (req, res) => {
         });
 
         await product.save();
+        
+        // Log initial stock if product is created with stock
+        if (product.stock > 0) {
+            await logStockChange(
+                product._id,
+                0,
+                product.stock,
+                'product_created',
+                'Product created with initial stock',
+                req.userId
+            );
+        }
+        
         res.status(201).json(product);
     } catch (error) {
         console.error('Product creation failed:', {
@@ -81,6 +95,12 @@ export const getProductById = async (req, res) => {
 // Update a product (with optional image update)
 export const updateProduct = async (req, res) => {
     try {
+        // Get the product before update to track stock changes
+        const oldProduct = await Product.findById(req.params.id);
+        if (!oldProduct) {
+            return res.status(404).json({ message: 'Product not found' });
+        }
+
         let updateData = { ...req.body };
         
         // Handle image upload if present
@@ -120,6 +140,19 @@ export const updateProduct = async (req, res) => {
         if (!product) {
             return res.status(404).json({ message: 'Product not found' });
         }
+
+        // Log stock change if stock was updated
+        if (updateData.stock !== undefined && oldProduct.stock !== product.stock) {
+            await logStockChange(
+                product._id,
+                oldProduct.stock,
+                product.stock,
+                'product_updated',
+                'Stock updated via product edit',
+                req.userId
+            );
+        }
+        
         res.json(product);
     } catch (error) {
         console.error('Product update failed:', {

@@ -4,6 +4,7 @@ import connectDB from './utils/util.js';
 import productRouter from './route/product.route.js';
 import supplierRouter from './route/supplier.route.js';
 import authRouter from './route/auth.route.js';
+import stockRouter from './route/stock.route.js';
 
 const app = express();
 
@@ -26,6 +27,7 @@ connectDB();
 app.use('/api/auth', authRouter);
 app.use('/api/products', productRouter);
 app.use('/api/suppliers', supplierRouter);
+app.use('/api/stock', stockRouter);
 
 app.get('/api/health', (_, res) => {
     res.json({ status: 'ok' });

@@ -17,6 +17,8 @@ import {
   CartesianGrid,
 } from 'recharts';
 import { getProducts } from '../services/productService';
+import { getLowStockAlerts } from '../services/stockService';
+import { FiAlertTriangle, FiPackage, FiArrowRight } from 'react-icons/fi';
 
 function Home() {
   const [stats, setStats] = useState({
@@ -33,6 +35,7 @@ function Home() {
   const [categoryChartData, setCategoryChartData] = useState([]);
   const [stockLevelData, setStockLevelData] = useState([]);
   const [stockTrendData, setStockTrendData] = useState([]);
+  const [lowStockAlerts, setLowStockAlerts] = useState(null);
 
   useEffect(() => {
     const fetchInventoryStats = async () => {
@@ -118,7 +121,16 @@ function Home() {
       }
     };
 
-    Promise.all([fetchInventoryStats(), fetchProductsForCharts()]).catch(() => {
+    const fetchLowStockAlerts = async () => {
+      try {
+        const response = await getLowStockAlerts();
+        setLowStockAlerts(response.data);
+      } catch (err) {
+        console.error('Error loading low stock alerts:', err);
+      }
+    };
+
+    Promise.all([fetchInventoryStats(), fetchProductsForCharts(), fetchLowStockAlerts()]).catch(() => {
       setLoading(false);
     });
   }, []);
@@ -155,6 +167,75 @@ function Home() {
             </div>
           ) : (
             <>
+              {/* Low Stock Alerts */}
+              {lowStockAlerts && lowStockAlerts.total > 0 && (
+                <div className="mb-8 bg-gradient-to-r from-orange-50 to-red-50 border-l-4 border-orange-500 rounded-lg p-6 shadow-md">
+                  <div className="flex items-center justify-between mb-4">
+                    <div className="flex items-center">
+                      <FiAlertTriangle className="text-3xl text-orange-600 mr-3" />
+                      <div>
+                        <h3 className="text-2xl font-bold text-orange-900">Low Stock Alerts</h3>
+                        <p className="text-orange-700">
+                          {lowStockAlerts.critical} critical (out of stock), {lowStockAlerts.low} low stock items
+                        </p>
+                      </div>
+                    </div>
+                    <Link
+                      to="/home/stock/adjust"
+                      className="bg-orange-600 hover:bg-orange-700 text-white font-semibold px-4 py-2 rounded-lg transition flex items-center"
+                    >
+                      Adjust Stock <FiArrowRight className="ml-2" />
+                    </Link>
+                  </div>
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mt-4">
+                    {lowStockAlerts.products.slice(0, 6).map((product) => (
+                      <div
+                        key={product._id}
+                        className={`p-4 rounded-lg ${
+                          product.stock === 0
+                            ? 'bg-red-100 border-2 border-red-300'
+                            : 'bg-orange-100 border-2 border-orange-300'
+                        }`}
+                      >
+                        <div className="flex items-center justify-between">
+                          <div className="flex-1">
+                            <h4 className="font-semibold text-gray-800">{product.name}</h4>
+                            <p className="text-sm text-gray-600">{product.category}</p>
+                            <div className="mt-2 flex items-center space-x-4">
+                              <span className={`text-sm font-bold ${
+                                product.stock === 0 ? 'text-red-700' : 'text-orange-700'
+                              }`}>
+                                Stock: {product.stock}
+                              </span>
+                              <span className="text-xs text-gray-600">
+                                Reorder: {product.reorderPoint || 10}
+                              </span>
+                            </div>
+                          </div>
+                          <Link
+                            to={`/home/stock/history/${product._id}`}
+                            className="ml-2 text-blue-600 hover:text-blue-800"
+                            title="View History"
+                          >
+                            <FiPackage className="text-xl" />
+                          </Link>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                  {lowStockAlerts.total > 6 && (
+                    <div className="mt-4 text-center">
+                      <Link
+                        to="/home/stock/history"
+                        className="text-orange-700 hover:text-orange-900 font-semibold text-sm"
+                      >
+                        View all {lowStockAlerts.total} low stock items →
+                      </Link>
+                    </div>
+                  )}
+                </div>
+              )}
+
               {/* Summary Cards */}
               <div className="grid grid-cols-1 md:grid-cols-5 gap-6 mb-10">
                 <div className="bg-white p-6 rounded-xl shadow-md border border-gray-100 hover:shadow-lg transition-all">

@@ -10,6 +10,8 @@ import ForgotPassword from './pages/ForgotPassword';
 import Profile from './pages/profile';
 import Quickhome from './pages/Quickhome';
 import Cart from './pages/Cart';
+import StockAdjustment from './pages/StockAdjustment';
+import StockHistory from './pages/StockHistory';
 //import UserProfile from './pages/userProfile';
 
 function App() {
@@ -30,6 +32,9 @@ function App() {
           <Route path="newProduct" element={<NewProduct/>}/>
           <Route path="suppliers" element={<Suppliers />} />   
           <Route path="profile" element={<Profile />} />
+          <Route path="stock/adjust" element={<StockAdjustment />} />
+          <Route path="stock/history/:productId" element={<StockHistory />} />
+          <Route path="stock/history" element={<StockHistory />} />
         </Route>
       </Routes>
     </Router>

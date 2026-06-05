@@ -25,6 +25,12 @@ const productSchema = new mongoose.Schema({
         min: 0,
         default: 0
     },
+    reorderPoint: {
+        type: Number,
+        required: false,
+        min: 0,
+        default: 10
+    },
     supplier: {
         type: String,
         required: true
