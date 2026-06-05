@@ -65,10 +65,10 @@ const options = {
     }
   },
   apis: [
-    './route/auth.route.js',
-    './route/product.route.js',
-    './route/supplier.route.js',
-    './route/stock.route.js'
+    '../route/auth.route.js',
+    '../route/product.route.js',
+    '../route/supplier.route.js',
+    '../route/stock.route.js'
   ]
 };
 
