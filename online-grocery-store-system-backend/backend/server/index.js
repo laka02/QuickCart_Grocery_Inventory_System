@@ -1,10 +1,12 @@
 import express from 'express';
 import cors from 'cors';
+import swaggerUi from 'swagger-ui-express';
 import connectDB from './utils/util.js';
 import productRouter from './route/product.route.js';
 import supplierRouter from './route/supplier.route.js';
 import authRouter from './route/auth.route.js';
 import stockRouter from './route/stock.route.js';
+import swaggerSpec from './config/swagger.js';
 
 const app = express();
 
@@ -21,6 +23,16 @@ app.use(
     })
 );
 app.use(express.json());
+
+// Swagger API Documentation
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec, {
+    swaggerOptions: {
+        url: '/api-docs/swagger.json',
+        displayOperationId: false,
+    },
+    customCss: '.swagger-ui .topbar { display: none }',
+    customSiteTitle: 'QuickCart API Documentation'
+}));
 
 connectDB();
 
