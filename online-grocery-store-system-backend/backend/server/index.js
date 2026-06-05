@@ -24,10 +24,14 @@ app.use(
 );
 app.use(express.json());
 
-// Swagger API Documentation
+// Swagger API Documentation - serve spec first
+app.get('/swagger.json', (req, res) => {
+    res.json(swaggerSpec);
+});
+
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec, {
     swaggerOptions: {
-        url: '/api-docs/swagger.json',
+        url: '/swagger.json',
         displayOperationId: false,
     },
     customCss: '.swagger-ui .topbar { display: none }',

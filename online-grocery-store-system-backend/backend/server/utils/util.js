@@ -5,7 +5,10 @@ dotenv.config();
 
 async function connectDB() {
     try {
-        const atlasUri = process.env.MONGODB_URI || 'mongodb+srv://imashasandanayaka:k2JFFJXaHwvs9Ew5@grocerystore.u8z94.mongodb.net/?retryWrites=true&w=majority&appName=groceryStore';
+        if (!process.env.MONGODB_URI) {
+            throw new Error('MONGODB_URI environment variable is not set');
+        }
+        const atlasUri = process.env.MONGODB_URI;
         
         await mongoose.connect(atlasUri, {
             useNewUrlParser: true,
